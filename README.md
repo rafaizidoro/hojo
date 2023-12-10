@@ -1,4 +1,5 @@
 # Hojo - An Opinionated ORM on Top of SQL Alchemy
+![hojo](https://github.com/rizidoro/hojo/assets/13101/369da95d-3d5c-470b-aaf3-46f133ae056d)
 
 Hojo is a library that simplifies the usage of SQL Alchemy, providing an interface that is familiar to Django users. While it is not an exact replication of the Django ORM API, it strives to be reminiscent of it, making it easier for Django developers to work with SQL Alchemy.
 
