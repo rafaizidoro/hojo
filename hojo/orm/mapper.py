@@ -37,10 +37,8 @@ class TypeTranslator:
             "UUID": SQLAlchemyUUID(as_uuid=True),
         }
 
-    def translate(self, field_name):
-        type_hints = get_type_hints(self.model)
-        field_type = type_hints[field_name]
-
+    def translate(self, field):
+        field_type = field.type
         field_type_name = field_type.__name__
         if field_type_name in self.type_mapping:
             return self.type_mapping[field_type_name]
@@ -65,7 +63,7 @@ class RelationshipManager:
 
 class TableBuilder:
     def __init__(self, mapper_registry, model):
-        self.mapper_registry = mapper_registry
+        self.mapper_registry = MAPPER_REGISTRY
         self.model = model
         self.translator = TypeTranslator(model)
         self.relationship_manager = RelationshipManager()
@@ -80,7 +78,7 @@ class TableBuilder:
                 self.relationship_manager.add_relationship(field_info.name, field_info)
                 continue
 
-            column_type = self.translator.translate(field_info.name)
+            column_type = self.translator.translate(field_info)
 
             is_primary_key = field_info.name == "id"  # id is the primary key by default
             is_nullable = field_info.default is None
@@ -88,16 +86,16 @@ class TableBuilder:
             is_index = self.get_contraint("index", indexes, field_info)
             is_unique = self.get_contraint("unique", uniques, field_info)
 
-            columns.append(
-                Column(
-                    field_info.name,
-                    column_type,
-                    primary_key=is_primary_key,
-                    nullable=is_nullable,
-                    index=is_index,
-                    unique=is_unique,
-                )
+            column = Column(
+                field_info.name,
+                column_type,
+                primary_key=is_primary_key,
+                nullable=is_nullable,
+                index=is_index,
+                unique=is_unique,
             )
+
+            columns.append(column)
 
         for index in indexes:
             idx_fields = sorted(indexes[index])
@@ -108,7 +106,6 @@ class TableBuilder:
             Pluralizer().plural((self.model.__name__.lower())),
             self.mapper_registry.metadata,
             *columns,
-            extend_existing=True,
         )
 
         return table
@@ -133,11 +130,9 @@ class TableBuilder:
     def automap(self):
         table = self.build_table()
 
-        self.mapper_registry.map_imperatively(
+        MAPPER_REGISTRY.map_imperatively(
             self.model,
             table,
         )
 
-        self.model.orm_mapper = self.model
-
-        return self.model
+        self.orm_model = self.model

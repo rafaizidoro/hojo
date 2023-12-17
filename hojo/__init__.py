@@ -1,4 +1,4 @@
-from hojo.base import BaseModel, define, field
+from hojo.base import BaseModel, field, model
 from hojo.config import Config
 from hojo.connection import Connection
 from hojo.orm.mapper import automap

@@ -18,9 +18,10 @@ Here's a basic example of how to use Hojo:
 
 ```python
 # file: models.py
-from hojo import BaseModel, dataclass, automap
+from hojo import BaseModel, automap
+from attr import define
 
-@dataclass
+@define
 class Soldier(BaseModel):
     name: str
     weapon: str
