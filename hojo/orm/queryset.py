@@ -155,6 +155,7 @@ class QuerySet:
         return self._apply_filter(exclude=True, **kwargs)
 
     def create(self, **kwargs) -> T:
+        breakpoint()
         obj = self.model_class.load(kwargs)
         self.session.add(obj)
         self.session.commit()

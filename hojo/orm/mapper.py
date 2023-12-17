@@ -1,51 +1,27 @@
-import sys
 from dataclasses import MISSING
-from dataclasses import field as datafield
-from dataclasses import fields
-from datetime import date, datetime
 from enum import EnumType
-from typing import Any, Dict, List, Type, get_type_hints
-from uuid import UUID
+from typing import get_type_hints
 
+from attr import fields
 from pluralizer import Pluralizer
-from sqlalchemy import Column, Index, Table, UniqueConstraint
+from sqlalchemy import Column, Index, Table
 from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
-from sqlalchemy.ext.indexable import index_property
-from sqlalchemy.orm import registry, relationship
+from sqlalchemy.orm import registry
 from sqlalchemy.types import Boolean, Date, DateTime, Float, Integer, String
 
 from hojo.base import BaseModel
 
-
-def pluralize(word):
-    return Pluralizer().plural(word)
+MAPPER_REGISTRY = registry()
 
 
-def field(
-    primary_key: bool = False,
-    index: bool = False,
-    unique: bool = False,
-    has_many: BaseModel = None,
-    belongs_to: BaseModel = None,
-    has_one: BaseModel = None,
-    **kwargs,
-) -> Any:
-    custom_metadata = {
-        "primary_key": primary_key,
-        "index": index,
-        "unique": unique,
-        "has_many": has_many,
-        "belongs_to": belongs_to,
-        "has_one": has_one,
-    }
+def automap(registry=None):
+    registry = registry or MAPPER_REGISTRY
 
-    # If metadata already exists in kwargs, update it; otherwise, create it
-    if "metadata" in kwargs:
-        kwargs["metadata"].update(custom_metadata)
-    else:
-        kwargs["metadata"] = custom_metadata
+    for model in BaseModel._registry:
+        builder = TableBuilder(registry, model)
+        builder.automap()
 
-    return datafield(**kwargs)
+    return registry
 
 
 class TypeTranslator:
@@ -129,7 +105,7 @@ class TableBuilder:
             columns.append(Index(index_name, *idx_fields))
 
         table = Table(
-            pluralize(self.model.__name__.lower()),
+            Pluralizer().plural((self.model.__name__.lower())),
             self.mapper_registry.metadata,
             *columns,
             extend_existing=True,
@@ -154,14 +130,14 @@ class TableBuilder:
         info = getattr(field_info, "metadata") or {}
         return info.get("has_many") or info.get("belongs_to") or info.get("has_one")
 
+    def automap(self):
+        table = self.build_table()
 
-def generate_orm_mapping(mapper_registry, model: Type[BaseModel]) -> BaseModel:
-    table_builder = TableBuilder(mapper_registry, model)
-    table = table_builder.build_table()
+        self.mapper_registry.map_imperatively(
+            self.model,
+            table,
+        )
 
-    mapper_registry.map_imperatively(
-        model,
-        table,
-    )
+        self.model.orm_mapper = self.model
 
-    return model
+        return self.model

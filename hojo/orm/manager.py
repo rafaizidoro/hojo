@@ -46,7 +46,7 @@ class Manager:
     def last(self) -> T:
         return self.get_queryset().last()
 
-    def create(self, data: dict | BaseSchema) -> T:
+    def create(self, **data) -> T:
         if isinstance(data, BaseSchema):
             data = data.dump()
 

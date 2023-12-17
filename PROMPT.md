@@ -2,8 +2,6 @@
 
 Hojo is a library that simplifies the usage of SQL Alchemy, providing an interface that is familiar to Django users. While it is not an exact replication of the Django ORM API, it strives to be reminiscent of it, making it easier for Django developers to work with SQL Alchemy.
 
-**Please note that this library is currently in Alpha version and is not yet ready for production use.**
-
 ## Installation
 
 You can install Hojo using pip:

@@ -1,12 +1,13 @@
 from typing import Optional
 
 import pytest
-from marshmallow import ValidationError
 
-from hojo.schema import BaseSchema, dataclass
+from hojo import define
+from hojo.errors import ValidationError
+from hojo.schema import BaseSchema
 
 
-@dataclass
+@define
 class User(BaseSchema):
     name: str
     age: Optional[int] = None
