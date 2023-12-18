@@ -15,3 +15,8 @@ class Config:
     @classmethod
     def get(cls, key):
         return cls.instance()._configurations.get(key)
+
+    @classmethod
+    def reset(cls):
+        cls._instance = None
+        cls._configurations = {}

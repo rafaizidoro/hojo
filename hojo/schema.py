@@ -2,15 +2,8 @@ from __future__ import annotations
 
 import json
 from typing import List, Optional, Union
-from uuid import UUID
 
-from cattrs.preconf.json import make_converter
-
-SchemaConverter = make_converter()
-
-# UUID converter
-SchemaConverter.register_unstructure_hook(UUID, lambda id: str(id))
-SchemaConverter.register_structure_hook(UUID, lambda id, _: UUID(id))
+from hojo.converter import SchemaConverter
 
 
 class BaseSchema:

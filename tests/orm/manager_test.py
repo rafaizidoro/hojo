@@ -2,11 +2,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from hojo import BaseModel, define
+from hojo import BaseModel, model
 from hojo.orm.manager import Manager
 
 
-@define
+@model
 class User(BaseModel):
     name: str
 

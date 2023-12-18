@@ -16,6 +16,8 @@ pg8000 = "^1.30.3"
 stringcase = "^1.2.0"
 attrs = "^23.1.0"
 cattrs = "^23.2.3"
+pendulum = "^3.0.0"
+sqlalchemy-utils = "^0.41.1"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.16.1"

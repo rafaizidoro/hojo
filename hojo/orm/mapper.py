@@ -1,6 +1,4 @@
-from dataclasses import MISSING
 from enum import EnumType
-from typing import get_type_hints
 
 from attr import fields
 from pluralizer import Pluralizer
@@ -8,6 +6,7 @@ from sqlalchemy import Column, Index, Table
 from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
 from sqlalchemy.orm import registry
 from sqlalchemy.types import Boolean, Date, DateTime, Float, Integer, String
+from sqlalchemy_utils.types import EnrichedDateTimeType, EnrichedDateType
 
 from hojo.base import BaseModel
 
@@ -40,13 +39,18 @@ class TypeTranslator:
     def translate(self, field):
         field_type = field.type
         field_type_name = field_type.__name__
+
         if field_type_name in self.type_mapping:
             return self.type_mapping[field_type_name]
+        if field_type_name == "DateTime":
+            return EnrichedDateTimeType()
+        if field_type_name == "Date":
+            return EnrichedDateType()
         elif isinstance(field_type, EnumType):
             return String
         else:
             raise TypeError(
-                f"Unsupported type: {field_type} for {self.model.__name__}.{field_name}'"
+                f"Unsupported type: {field_type} for {self.model.__name__}.{field_type_name}'"
             )
 
 
@@ -63,7 +67,7 @@ class RelationshipManager:
 
 class TableBuilder:
     def __init__(self, mapper_registry, model):
-        self.mapper_registry = MAPPER_REGISTRY
+        self.mapper_registry = mapper_registry
         self.model = model
         self.translator = TypeTranslator(model)
         self.relationship_manager = RelationshipManager()
@@ -130,9 +134,7 @@ class TableBuilder:
     def automap(self):
         table = self.build_table()
 
-        MAPPER_REGISTRY.map_imperatively(
+        self.mapper_registry.map_imperatively(
             self.model,
             table,
         )
-
-        self.orm_model = self.model
