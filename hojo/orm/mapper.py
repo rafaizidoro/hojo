@@ -1,6 +1,7 @@
 from enum import EnumType
+from typing import Union, get_args, get_origin
 
-from attr import fields
+from attr import fields, resolve_types
 from pluralizer import Pluralizer
 from sqlalchemy import Column, Index, Table
 from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
@@ -36,9 +37,20 @@ class TypeTranslator:
             "UUID": SQLAlchemyUUID(as_uuid=True),
         }
 
+        resolve_types(self.model)
+
     def translate(self, field):
         field_type = field.type
-        field_type_name = field_type.__name__
+        origin_type = get_origin(field_type)
+        field_args = get_args(field_type)
+
+        if origin_type is Union and len(field_args) == 2 and type(None) in field_args:
+            field_type = next(t for t in field_args if t is not type(None))
+            field_type_name = field_type.__name__
+        else:
+            field_type_name = (
+                field_type if type(field_type) == str else field_type.__name__
+            )
 
         if field_type_name in self.type_mapping:
             return self.type_mapping[field_type_name]
@@ -87,8 +99,8 @@ class TableBuilder:
             is_primary_key = field_info.name == "id"  # id is the primary key by default
             is_nullable = field_info.default is None
 
-            is_index = self.get_contraint("index", indexes, field_info)
-            is_unique = self.get_contraint("unique", uniques, field_info)
+            is_index = self.get_constraint("index", indexes, field_info)
+            is_unique = self.get_constraint("unique", uniques, field_info)
 
             column = Column(
                 field_info.name,
@@ -114,7 +126,7 @@ class TableBuilder:
 
         return table
 
-    def get_contraint(self, contraint_type, contraints, field_info):
+    def get_constraint(self, contraint_type, contraints, field_info):
         idx = field_info.metadata.get(contraint_type)
         match idx:
             case bool():
