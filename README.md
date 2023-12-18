@@ -18,11 +18,10 @@ Here's a basic example of how to use Hojo:
 
 ```python
 # file: models.py
-from hojo import BaseModel, automap
-from attr import define
+from hojo import automap, model
 
-@define
-class Soldier(BaseModel):
+@model
+class Soldier:
     name: str
     weapon: str
     level: int
@@ -47,4 +46,37 @@ soldier = Soldier.objects.filter(weapon__startswith='Buster')
 
 # Retrieve a list of Soldiers filtering by level greater than 10
 soldiers = Soldier.objects.filter(level__gt=10)
+```
+
+## Schema usage
+Hojo provides a BaseSchema class, that you can use with attrs @define and get some abstractions over it:
+
+```python
+from attrs import define
+from hojo import BaseSchema
+from enum import StrEnum
+
+class MateriaType(StrEnum):
+    MAGIC = 'magic'
+    SUPPORT = 'support'
+    SUMMON = 'summon'
+    COMMAND = 'command'
+
+@define
+class Materia(BaseSchema):
+    name: str
+    materia_type: MateriaType
+    
+
+
+ifrit = Materia.load({'name': 'Ifrit', 'materia_type': 'summon'})
+
+print(ifrit) # => Materia(name='Ifrit', materia_type=<MateriaType.SUMMON: 'summon'>)
+
+print(ifrit.dump()) # => {'name': 'Ifrit', 'materia_type': 'summon'}
+
+print(ifrit.dump(only=['name'])) # => {'name': 'Ifrit'}
+
+print(ifrit.dump(exclude=['name'])) # => {'materia_type': 'summon'}
+
 ```
