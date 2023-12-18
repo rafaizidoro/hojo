@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hojo"
-version = "0.3.0"
+version = "0.3.1"
 description = "Hojo: An ORM built on top of SQL Alchemy"
 authors = ["Rafael Izidoro <izidoro.me@gmail.com>"]
 license = "MIT"
