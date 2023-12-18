@@ -1,7 +1,7 @@
 from enum import EnumType
 from typing import Union, get_args, get_origin
 
-from attr import fields, resolve_types
+from attrs import fields, resolve_types
 from pluralizer import Pluralizer
 from sqlalchemy import Column, Index, Table
 from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
