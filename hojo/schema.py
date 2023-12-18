@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import List, Optional, Union
 
+from attrs import define, make_class
+
 from hojo.converter import SchemaConverter
 
 
@@ -36,3 +38,17 @@ class BaseSchema:
         data = self.dump(**kwargs)
 
         return json.dumps(data)
+
+
+def schema(cls) -> BaseSchema:
+    klass = define(cls)
+
+    class_name = cls.__name__
+    ProxySchema = make_class(class_name, {}, bases=(klass, BaseSchema), cmp=False)
+
+    ProxySchema.__name__ = cls.__name__
+    ProxySchema.__qualname__ = cls.__qualname__
+    ProxySchema.__module__ = cls.__module__
+    ProxySchema.__doc__ = cls.__doc__
+
+    return ProxySchema

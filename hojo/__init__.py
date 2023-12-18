@@ -2,7 +2,7 @@ from hojo.base import BaseModel, field, model
 from hojo.config import Config
 from hojo.connection import Connection
 from hojo.orm.mapper import automap
-from hojo.schema import BaseSchema
+from hojo.schema import BaseSchema, schema
 
 
 class Hojo:

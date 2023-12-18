@@ -53,8 +53,7 @@ soldiers = Soldier.objects.filter(level__gt=10)
 Hojo provides a BaseSchema class, that you can use with attrs @define and get some abstractions over it:
 
 ```python
-from attrs import define
-from hojo import BaseSchema
+from hojo import schema
 from enum import StrEnum
 
 class MateriaType(StrEnum):
@@ -63,12 +62,11 @@ class MateriaType(StrEnum):
     SUMMON = 'summon'
     COMMAND = 'command'
 
-@define
-class Materia(BaseSchema):
+@schema
+class Materia:
     name: str
     materia_type: MateriaType
     
-
 
 ifrit = Materia.load({'name': 'Ifrit', 'materia_type': 'summon'})
 
