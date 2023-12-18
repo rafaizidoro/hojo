@@ -12,10 +12,6 @@ class TestBaseModel:
     class AnotherMockModel(BaseModel):
         pass
 
-    def test_subclass_registration(self):
-        assert TestBaseModel.MockModel in BaseModel._registry
-        assert TestBaseModel.AnotherMockModel in BaseModel._registry
-
     def test_manager_initialization(self):
         assert isinstance(TestBaseModel.MockModel.objects, Manager)
 

@@ -1,8 +1,11 @@
 import json
 import os
+from typing import Optional
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
+
+from hojo.config import Config
 
 
 class ConnectionCredentialError(RuntimeError):
@@ -17,28 +20,12 @@ class Connection:
             cls._instance = super(Connection, cls).__new__(cls)
         return cls._instance
 
-    def __init__(
-        self,
-        user: str = None,
-        endpoint: str = None,
-        port: int = None,
-        name: str = None,
-        password: str = None,
-    ) -> None:
-        self._initialized = True
+    def __init__(self) -> None:
         self._session = None
         self._engine = None
-        self.user = user or os.environ.get("DB_USER")
-        self.endpoint = endpoint or os.environ.get("DB_ENDPOINT")
-        self.port = port or os.environ.get("DB_PORT", "5432")
-        self.name = name or os.environ.get("DB_NAME")
-        self.password = password or os.environ.get("DB_PASSWORD", None)
-        self.region = os.environ.get("AWS_REGION")
-        self.environment = os.environ.get("ENVIRONMENT", "development")
+        self.db_uri = Config.get("db_uri") or os.environ.get("DB_URI")
 
-        if not (
-            self.user and self.endpoint and self.name and self.port and self.password
-        ):
+        if not self.db_uri:
             raise ConnectionCredentialError("Invalid database credentials.")
 
     @property
@@ -53,20 +40,17 @@ class Connection:
         session_factory = sessionmaker(
             bind=self._get_engine(), future=True, expire_on_commit=False
         )
-        session: Session = scoped_session(session_factory)
+        session: Session = scoped_session(session_factory)  # type: ignore
         return session
 
-    def get_connection_string(self):
-        conn = "postgresql+pg8000://{}:{}@{}:{}/{}".format(
-            self.user, self.password, self.endpoint, self.port, self.name
-        )
-
-        return conn
+    @classmethod
+    def reset(cls):
+        cls._instance = None
 
     def _get_engine(self):
         if self._engine:
             return self._engine
 
-        self._engine = create_engine(self.get_connection_string())
+        self._engine = create_engine(self.db_uri)  # type: ignore
 
         return self._engine

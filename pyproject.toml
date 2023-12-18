@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hojo"
-version = "0.1.0"
+version = "0.2.0"
 description = "Hojo: An ORM built on top of SQL Alchemy"
 authors = ["Rafael Izidoro <izidoro.me@gmail.com>"]
 license = "MIT"
@@ -10,12 +10,14 @@ readme = "README.md"
 python = "^3.11"
 SQLAlchemy = "^2.0.23"
 alembic = "^1.13.0"
-marshmallow = "^3.20.1"
-marshmallow-dataclass = {extras = ["enum", "union"], version = "^8.6.0"}
 uuid6 = "^2023.5.2"
 pluralizer = "^1.2.0"
 pg8000 = "^1.30.3"
 stringcase = "^1.2.0"
+attrs = "^23.1.0"
+cattrs = "^23.2.3"
+pendulum = "^3.0.0"
+sqlalchemy-utils = "^0.41.1"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.16.1"

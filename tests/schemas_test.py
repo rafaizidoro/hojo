@@ -1,12 +1,13 @@
 from typing import Optional
 
 import pytest
-from marshmallow import ValidationError
+from attrs import define
 
-from hojo.schema import BaseSchema, dataclass
+from hojo.errors import ValidationError
+from hojo.schema import BaseSchema
 
 
-@dataclass
+@define
 class User(BaseSchema):
     name: str
     age: Optional[int] = None
@@ -58,17 +59,26 @@ def test_dump_data(data, expected):
         ),  # age=None should be excluded in dump
     ],
 )
-def test_dump_with_pydantic_options(data, expected):
+def test_dump_with_options(data, expected):
     user = User(**data)
     dumped_data = user.dump(skip_none=True)
 
     assert dumped_data == expected
 
 
-def test_dump_with_pydantic_exclude():
+def test_dump_with_exclude():
     data = {"name": "John", "age": 30}
 
     user = User.load(data)
     dumped_data = user.dump(exclude=["age"])
 
     assert {"name": "John"} == dumped_data
+
+
+def test_dump_with_only():
+    data = {"name": "John", "age": 30}
+
+    user = User.load(data)
+    dumped_data = user.dump(only=["age"])
+
+    assert {"age": 30} == dumped_data

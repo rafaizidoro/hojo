@@ -2,12 +2,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from hojo.base import BaseModel
+from hojo import BaseModel, model
 from hojo.orm.manager import Manager
-from hojo.schema import dataclass
 
 
-@dataclass
+@model
 class User(BaseModel):
     name: str
 
@@ -36,7 +35,7 @@ class TestManager:
 
     def test_create(self, mock_queryset):
         test_data = {"field1": "value1", "field2": "value2"}
-        User.objects.create(test_data)
+        User.objects.create(**test_data)
         mock_queryset.create.assert_called_with(**test_data)
 
     def test_get(self, mock_queryset):

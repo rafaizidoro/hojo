@@ -90,8 +90,6 @@ class QuerySet:
     def _select(self):
         self._mount_filters()
 
-        print(self.query)
-
         self._result_cache = self.session.execute(self.query).scalars().all()
         self._executed = True
 
